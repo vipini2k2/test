@@ -1,0 +1,74 @@
+http://sharadchhetri.com/2014/07/31/how-to-install-mysql-server-5-6-on-centos-7-rhel-7/
+[25-Dec-14 1:54:37 PM] KMI Support25: Installing JBoss 7.1.1.Final on CentOS 6
+========================================
+
+This tutorial consists of the following steps:
+
+Step 1: JDK installation and verification
+Step 2: Download JBoss and the installation procedure
+Step 3: Create the appropriate user
+Step 4: Start our new JBoss server and verify that the server has started properly
+Step 5: Stop the new JBoss server and verify that the server has shutdown properly
+
+Step 1: JDK Installation and verification :
+
+ # yum -y install java-1.6.0-openjdk-devel
+
+ # java -version
+
+Step 2: Download and install JBoss :
+
+ # wget http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.zip
+
+ # unzip jboss-as-7.1.1.Final.zip -d /usr/share
+
+Step 3: Create the appropriate user :
+
+ # useradd jboss
+
+ # passwd jboss
+
+Change ownership of the installation directory :
+
+ # chown -fR jboss.jboss /usr/share/jboss-as-7.1.1.Final/
+
+Switch user to the jboss user :
+
+ # su - jboss
+
+Add a jboss management user :
+
+ $ cd /usr/share/jboss-as-7.1.1.Final/bin/
+
+ $ ./add-user.sh
+
+What type of user do you wish to add?
+
+ a) Management User (mgmt-users.properties)
+
+ b) Application User (application-users.properties)
+(angel): a
+
+We select “a”, next you should see the following message:
+
+Enter the details of the new user to add.
+Realm (ManagementRealm) :   ( Press Enter)
+Username : jboss
+Password :
+Re-enter Password :
+
+ Press yes
+
+Step 4: Start the JBoss AS 7 server:
+
+ $ ./standalone.sh -Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management=0.0.0.0&
+
+Step 5: Stop the JBoss AS 7 server:
+ 
+$ ./jboss-cli.sh --connect command=:shutdown
+
+Step 8: Test your JBoss 7 installation:
+
+ http://yourip::9990/
+
+Follow the Link: http://opensourcearchitect.co/tutorials/installing-jboss-7-1-on-centos-6

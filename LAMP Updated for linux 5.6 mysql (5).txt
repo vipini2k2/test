@@ -1,0 +1,277 @@
+﻿
+                          LAMP Server For RHEL
+                                        --------------------------------
+Requirements:
+
+
+A.    	Apache Web Server 2.0 (httpd)
+B.    	MySQL Database Server 5.6
+C.    	PHP Scripting Language 5.6
+D.    	phpMyAdmin 4.3.10 - Web based MySQL Administration Tool
+
+1. Install Apache:
+
+# yum -y install httpd httpd-devel
+
+
+2. Edit httpd.conf file:
+
+# vi /etc/httpd/conf/httpd.conf
+
+
+Check this Line-991
+NameVirtualHost *:80
+
+Last-add this line:
+DocumentRoot "/var/www/html"
+RewriteEngine on
+CheckCaseOnly On
+
+
+----Save & Quit (:wq)-----
+
+
+make logs directory...
+
+# mkdir /logs
+
+
+3. Go to 
+# cd /var/www/html :
+
+
+# vi index.html
+
+Make A HTML
+add those line...
+
+
+<html>
+<marquee direction="left">
+<font size="12" color="red">
+!!!....Restricted zone....!!!
+</font>
+</marquee>
+</html>
+
+
+----Save & Quit (:wq)----
+
+# vi /etc/httpd/conf.d/43.224.136.104.conf
+
+then paste those line
+
+<VirtualHost *:80>
+
+  # Admin email, Server Name (domain name) and any aliases
+  ServerAdmin techsupport@24x7-itsupport.com
+  ServerName 43.224.136.104
+
+
+  # Index file and Document Root (where the public files are located)
+  DirectoryIndex index.html
+  DocumentRoot /var/www/html
+
+
+  # Custom log file locations
+  LogLevel warn
+  ErrorLog  /logs/43.224.136.104-error_log
+  SetEnvIf Request_URI "\.(jpg|xml|png|gif|ico|js|css|swf|js?.|css?.)$" DontLog
+  CustomLog /logs/43.224.136.104-access_log combined Env=!DontLog
+
+</VirtualHost>
+
+# vi /etc/httpd/conf.d/server1.centos.com.conf (FOR VIRTUAL HOSTS)
+
+<VirtualHost *:80>
+
+  # Admin email, Server Name (domain name) and any aliases
+  ServerAdmin techsupport@24x7-itsupport.com
+  ServerName www.server1.centos.com
+  ServerAlias server1.centos.com
+
+
+  # Index file and Document Root (where the public files are located)
+  DirectoryIndex index.php index.html
+  DocumentRoot /var/www/html/server1.centos.com
+
+  # Custom log file locations
+  LogLevel warn
+  ErrorLog  /logs/server1.centos.com-error_log
+  SetEnvIf Request_URI "\.(jpg|xml|png|gif|ico|js|css|swf|js?.|css?.)$" DontLog
+  CustomLog /logs/server1.centos.com-access_log combined Env=!DontLog
+
+</VirtualHost>
+
+4. Start httpd Service:
+
+# /etc/init.d/httpd start
+
+
+5. Install MySQL Database Server:
+
+ yum install wget
+ wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
+rpm -ivh mysql-community-release-el6-5.noarch.rpm
+
+ yum install -y mysql-server mysql mysql-devel
+
+
+6. Start Mysqld Service:
+
+# /etc/init.d/mysqld start
+
+
+7. Changing MySQL Root Password:
+
+
+# mysql
+mysql> USE mysql;
+mysql> UPDATE user SET Password=PASSWORD('new password') WHERE user='root';
+update user set password=redhat where user='root';
+mysql> FLUSH PRIVILEGES;
+mysql> exit
+
+
+8. Check by logging in:
+
+
+# mysql -u root -p 
+Enter Password: <your new password>
+
+
+mysql> show databases;
++--------------------------------+
+| Database              	|
++---------------------------------+
+| information_schema |
+| mysql                         	|
++---------------------------------+
+2 rows in set (0.00 sec)
+
+
+mysql> exit
+
+
+9. Install PHP5 Scripting Language:
+
+rpm -Uvh http://mirror.webtatic.com/yum/el6/latest.rpm
+
+ yum install php56w php56w-cli php56w-mysql php56w-pdo php56w-pecl-memcache php56w-xml php56w-imap php56w-mbstring php56w-mcrypt php56w-common php56w-fpm       php56w-odbc php56w-devel  php56w-xmlrpc php56w-soap php56w-pecl-igbinary php56w-pdo php56w-ldap php56w-xml php56w-imap php56w-pear php56w-gd
+
+10. Create a file named /var/www/html/info.php:
+
+
+# vi /var/www/html/info.php
+
+
+<?php
+  phpinfo();
+?>
+
+
+Save & Quit (:wq)
+
+
+11. Restart Apache to load php:
+
+# /etc/init.d/httpd restart
+
+***Now stop the firewall
+service iptables stop
+chkconfig iptables off
+
+12. Then point your browser to http://ip address/info.php:
+
+
+Ex- http://43.224.136.104/info.php
+
+
+
+
+13. Download this phpMyAdmin rpm:
+
+
+# cd /var/www/html
+# wget https://files.phpmyadmin.net/phpMyAdmin/4.5.2/phpMyAdmin-4.5.2-all-languages.tar.gz
+
+
+
+14. Extract the tar File & Rename it :
+
+
+# tar -zxvf phpMyAdmin-4.3.10-english.tar.gz
+# ll
+# mv phpMyAdmin-4.3.10-english phpmyadmin
+
+
+15. Edit the /etc/httpd/conf/httpd.conf File :
+
+
+# vi /etc/httpd/conf/httpd.conf
+
+Find the below line 
+# you might expect, make sure that you have specifically enabled it
+# below.
+
+Add those Lines :
+<Directory /var/www/html/pma>
+    	Options  -Indexes +Multiviews +FollowSymLinks
+       	DirectoryIndex index.php index.html
+    	AllowOverride All
+    	Allow from all
+</Directory>
+
+
+<Directory /var/www/html/mediawiki>
+    	Options  -Indexes +Multiviews +FollowSymLinks
+       	DirectoryIndex index.php index.html
+    	AllowOverride All
+    	Allow from all
+</Directory>
+
+Save & Quit (:wq)
+
+
+16. Rename the config.sample.inc.php File :
+
+#cd /var/www/html/phpmyadmin
+
+# mv config.sample.inc.php config.inc.php
+
+
+17. Now needs a secret passphrase (blowfish_secret):
+
+
+# vi /var/www/html/phpmyadmin/config.inc.php
+
+
+$cfg['blowfish_secret'] = ''; /* YOU MUST FILL IN THIS FOR COOKIE AUTH! */
+Just Add Password - $cfg['blowfish_secret'] = 'Your Password'
+
+
+$cfg['blowfish_secret'] = 'mysql_password'; /* YOU MUST FILL IN THIS FOR COOKIE AUTH! */
+
+
+
+
+$cfg['Servers'][$i]['host'] = 'MySQL_Server_Name'; ← Database Server Hostname.
+
+
+Save & Quit (:wq)
+
+
+18. Start the httpd & mysql Service & stop iptables :
+# chkconfig httpd on
+# chkconfig mysqld on
+# service iptables stop
+
+
+19. Point your browser to: http://ip.address/phpmyadmin :
+
+
+ex- http://43.224.136.104/phpmyadmin
+User Name: root
+Password: Mysql_Password
+
+
